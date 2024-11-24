@@ -116,20 +116,50 @@ def main():
         
         elif option == "5":
             ano = input("Digite o ano (AAAA): ")
+
+            # a seguinte query retorna o faturamente agrupado por mês, porém só exibe registros de meses que o faturamente tenha sido diferente de 0. Ou seja, se o faturamente = 0 em um mês, ele não vai ser retornado
             query = """
-                SELECT 
-                    e.nome AS empresa_nome, 
-                    SUM(p.preco_total) AS faturamento_total
+                SELECT e.nome, TO_CHAR(p.data_solicitacao, 'YYYY-MM') AS mes, SUM(p.preco_total) AS faturamento
                 FROM Pedido p
                 JOIN pedido_servico ps ON ps.id_pedido = p.id
                 JOIN Empresa_Servico_Cidade esc ON ps.id_empresa_servico_cidade = esc.id
                 JOIN Empresa_de_Mudancas e ON esc.id_empresa = e.id
                 WHERE EXTRACT(YEAR FROM p.data_solicitacao) = %s
-                GROUP BY e.nome
-                ORDER BY e.nome;
+                GROUP BY e.nome, TO_CHAR(p.data_solicitacao, 'YYYY-MM')
+                ORDER BY e.nome, mes;
             """
+
+            # a seguinte quer retorna resultado para todos os meses do ano, mesmo que o faturamente = 0
+            # query = """ 
+            #     WITH meses AS (
+            #         SELECT TO_CHAR(date_trunc('month', (DATE '2024-01-01' + (n || ' months')::interval)), 'YYYY-MM') AS mes
+            #         FROM generate_series(0, 11) n
+            #     ),
+            #     empresas AS (
+            #         SELECT DISTINCT e.nome AS empresa_nome
+            #         FROM Empresa_de_Mudancas e
+            #     ),
+            #     todos_meses AS (
+            #         SELECT e.empresa_nome, m.mes
+            #         FROM empresas e
+            #         CROSS JOIN meses m
+            #     )
+            #     SELECT 
+            #         tm.empresa_nome, 
+            #         tm.mes, 
+            #         COALESCE(SUM(p.preco_total), 0) AS faturamento
+            #     FROM todos_meses tm
+            #     LEFT JOIN Pedido p ON TO_CHAR(p.data_solicitacao, 'YYYY-MM') = tm.mes
+            #     LEFT JOIN Pedido_Servico ps ON p.id = ps.id_pedido
+            #     LEFT JOIN Empresa_Servico_Cidade esc ON ps.id_empresa_servico_cidade = esc.id
+            #     LEFT JOIN Empresa_de_Mudancas e ON esc.id_empresa = e.id AND e.nome = tm.empresa_nome
+            #     WHERE EXTRACT(YEAR FROM p.data_solicitacao) = 2024 OR p.id IS NULL
+            #     GROUP BY tm.empresa_nome, tm.mes
+            #     ORDER BY tm.empresa_nome, tm.mes;
+            # """
+
             results = execute_query(conn, query, (ano,))
-        
+
         elif option == "6":
             query = """
                 SELECT s.nome_servico, COUNT(*) AS total
