@@ -129,7 +129,7 @@ def main():
                 ORDER BY e.nome, mes;
             """
 
-            # a seguinte quer retorna resultado para todos os meses do ano, mesmo que o faturamente = 0
+            # a seguinte query retorna resultado para todos os meses do ano, mesmo que o faturamente = 0
             # query = """ 
             #     WITH meses AS (
             #         SELECT TO_CHAR(date_trunc('month', (DATE '2024-01-01' + (n || ' months')::interval)), 'YYYY-MM') AS mes
