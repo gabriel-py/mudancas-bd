@@ -85,7 +85,7 @@ def main():
             mes = input("Digite o mês (MM): ")
             ano = input("Digite o ano (AAAA): ")
             query = """
-                SELECT f.nome_completo
+                SELECT DISTINCT f.nome_completo
                 FROM Pedido_Servico_Funcionario psf
                 JOIN Pedido_Servico ps ON psf.id_pedido_servico = ps.id
                 JOIN Pedido p ON ps.id_pedido = p.id
@@ -98,11 +98,18 @@ def main():
         
         elif option == "4":
             query = """
-                SELECT p.codigo_pedido, c.nome_completo, e1.nome_cidade AS origem, e2.nome_cidade AS destino, p.preco_total
+                SELECT 
+                    p.codigo_pedido AS pedido_codigo,
+                    c.nome_completo AS cliente_nome,
+                    cidade_origem.nome_cidade AS municipio_origem,
+                    cidade_destino.nome_cidade AS municipio_destino,
+                    p.preco_total AS preco_total
                 FROM Pedido p
                 JOIN Cliente c ON p.id_cliente = c.id
-                JOIN Endereco e1 ON p.id_endereco_partida = e1.id
-                JOIN Endereco e2 ON p.id_endereco_destino = e2.id
+                LEFT JOIN Endereco endereco_origem ON p.id_endereco_partida = endereco_origem.id
+                LEFT JOIN Cidade cidade_origem ON endereco_origem.id_cidade = cidade_origem.id
+                LEFT JOIN Endereco endereco_destino ON p.id_endereco_destino = endereco_destino.id
+                LEFT JOIN Cidade cidade_destino ON endereco_destino.id_cidade = cidade_destino.id
                 WHERE p.data_solicitacao >= CURRENT_DATE - INTERVAL '1 year';
             """
             results = execute_query(conn, query)
@@ -110,13 +117,16 @@ def main():
         elif option == "5":
             ano = input("Digite o ano (AAAA): ")
             query = """
-                SELECT e.nome, TO_CHAR(p.data_solicitacao, 'YYYY-MM') AS mes, SUM(p.preco_total) AS faturamento
+                SELECT 
+                    e.nome AS empresa_nome, 
+                    SUM(p.preco_total) AS faturamento_total
                 FROM Pedido p
-                JOIN Empresa_Servico_Cidade esc ON p.id_empresa_servico_cidade = esc.id
+                JOIN pedido_servico ps ON ps.id_pedido = p.id
+                JOIN Empresa_Servico_Cidade esc ON ps.id_empresa_servico_cidade = esc.id
                 JOIN Empresa_de_Mudancas e ON esc.id_empresa = e.id
                 WHERE EXTRACT(YEAR FROM p.data_solicitacao) = %s
-                GROUP BY e.nome, TO_CHAR(p.data_solicitacao, 'YYYY-MM')
-                ORDER BY e.nome, mes;
+                GROUP BY e.nome
+                ORDER BY e.nome;
             """
             results = execute_query(conn, query, (ano,))
         
