@@ -16,7 +16,9 @@ Antes de rodar o projeto, certifique-se de que você tenha o seguinte instalado:
 
 Clone o repositório e instale as dependências necessárias para o projeto usando o `pip`:
 
+```
 pip install -r requirements.txt
+```
 
 ### 2. Criar o banco de dados PostgreSQL
 
