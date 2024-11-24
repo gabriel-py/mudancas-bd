@@ -16,17 +16,13 @@ Antes de rodar o projeto, certifique-se de que você tenha o seguinte instalado:
 
 Clone o repositório e instale as dependências necessárias para o projeto usando o `pip`:
 
-```bash
 pip install -r requirements.txt
-```
 
 ### 2. Criar o banco de dados PostgreSQL
 
 Após instalar as dependências, crie o banco de dados no PostgreSQL. Utilize o seguinte comando para criar o banco de dados chamado `mudancas`:
 
-```bash
 createdb -U postgres -h localhost -p 5432 mudancas
-```
 
 ### 3. Executar os scripts SQL
 
@@ -34,29 +30,24 @@ Após criar o banco de dados, execute os scripts SQL na pasta `migrations` para 
 
 Execute os scripts dentro de `migrations`:
 
-```bash
 psql -U postgres -h localhost -p 5432 -d mudancas -f migrations/0001_initial_schema.sql
 psql -U postgres -h localhost -p 5432 -d mudancas -f migrations/0002_trigger.sql
 # E assim por diante, para todos os scripts em migrations
-```
 
 Execute os scripts dentro de `migrations/seeds` para popular o banco de dados com dados iniciais:
 
-```bash
 psql -U postgres -h localhost -p 5432 -d mudancas -f migrations/seeds/0001_inital_data.sql
-```
 
 ### 4. Configurar as variáveis do banco de dados no arquivo `config.py`
 
 Abra o arquivo `config.py` e adicione as configurações do banco de dados criado, substituindo os valores pelos apropriados para o seu ambiente:
 
-```python
+
 DB_NAME = "mudancas"
 DB_USER = "postgres"
 DB_PASSWORD = "postgres"
 DB_HOST = "localhost"
 DB_PORT = "5432"
-```
 
 ### 5. Rodar o projeto
 
