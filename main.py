@@ -164,12 +164,69 @@ def main():
             query = """
                 SELECT s.nome_servico, COUNT(*) AS total
                 FROM Pedido_Servico ps
-                JOIN Servico s ON ps.id_servico = s.id
+                JOIN Empresa_Servico_Cidade esc ON ps.id_empresa_servico_cidade = esc.id
+                JOIN Servico s ON esc.id_servico = s.id
                 JOIN Pedido p ON ps.id_pedido = p.id
                 WHERE p.data_solicitacao >= CURRENT_DATE - INTERVAL '1 month'
                 GROUP BY s.nome_servico
                 ORDER BY total DESC
                 LIMIT 1;
+            """
+            results = execute_query(conn, query)
+        
+        elif option == "7":
+            query = """
+                SELECT 
+                    e.nome AS empresa_nome, 
+                    s.nome_servico, 
+                    COUNT(*) AS total_solicitacoes
+                FROM Pedido_Servico ps
+                JOIN Empresa_Servico_Cidade esc ON ps.id_empresa_servico_cidade = esc.id
+                JOIN Empresa_de_Mudancas e ON esc.id_empresa = e.id
+                JOIN Servico s ON esc.id_servico = s.id
+                GROUP BY e.nome, s.nome_servico
+                ORDER BY e.nome, total_solicitacoes DESC;
+            """
+            results = execute_query(conn, query)
+
+        elif option == "8":
+            query = """
+                SELECT 
+                    c.nome_cidade
+                FROM Pedido p
+                JOIN Endereco e ON p.id_endereco_partida = e.id
+                JOIN Cidade c ON e.id_cidade = c.id
+                GROUP BY c.nome_cidade
+                ORDER BY COUNT(*) DESC
+                LIMIT 1;
+            """
+            results = execute_query(conn, query)
+
+        elif option == "9":
+            query = """
+                SELECT 
+                    c.nome_cidade, 
+                    COUNT(*) AS total_solicitacoes
+                FROM Pedido p
+                JOIN Endereco e ON p.id_endereco_destino = e.id
+                JOIN Cidade c ON e.id_cidade = c.id
+                GROUP BY c.nome_cidade
+                ORDER BY total_solicitacoes DESC
+                LIMIT 1;
+            """
+            results = execute_query(conn, query)
+
+        elif option == "10":
+            query = """
+                SELECT 
+                    e.nome AS empresa_nome, 
+                    COALESCE(SUM(p.preco_total), 0) AS faturamento_total
+                FROM Empresa_de_Mudancas e
+                LEFT JOIN Empresa_Servico_Cidade esc ON e.id = esc.id_empresa
+                LEFT JOIN Pedido_Servico ps ON esc.id = ps.id_empresa_servico_cidade
+                LEFT JOIN Pedido p ON ps.id_pedido = p.id
+                GROUP BY e.nome
+                ORDER BY faturamento_total DESC;
             """
             results = execute_query(conn, query)
         
