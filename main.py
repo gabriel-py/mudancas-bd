@@ -245,6 +245,11 @@ def main():
                 print(" - " + ", ".join(str(value) for value in row))
         else:
             print("Nenhum resultado encontrado.")
+        
+        continuar = input("\nDigite qualquer tecla para continuar ou 0 para sair: ")
+        if continuar == '0':
+            print("Saindo...")
+            break
 
     conn.close()
 
