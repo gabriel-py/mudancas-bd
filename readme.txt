@@ -26,7 +26,7 @@ createdb -U postgres -h localhost -p 5432 mudancas
 
 ### 3. Executar os scripts SQL
 
-Após criar o banco de dados, execute os scripts SQL na pasta `migrations` para configurar o banco e suas tabelas, e na pasta `migrations/seeds` para inserir dados iniciais (se houver).
+Após criar o banco de dados, execute os scripts SQL na pasta `migrations` para configurar o banco e suas tabelas, e na pasta `migrations/seeds` para inserir dados iniciais.
 
 Execute os scripts dentro de `migrations`:
 
